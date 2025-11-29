@@ -34,7 +34,7 @@ def routing_instances(text):
 # -----------------------------
 # Streamlit Page Configuration
 # -----------------------------
-st.set_page_config(page_title="Excel Processor", page_icon="📘", layout="centered")
+st.set_page_config(page_title="Data Extraction", page_icon="📘", layout="centered")
 
 st.markdown("""
 <style>
@@ -62,12 +62,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📘 Excel Processing Tool")
+st.title("📘 Data Extracting Tool")
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
 file = st.file_uploader("Upload your Excel file", type=["xlsx"])
-instance_keyword = st.text_input("Enter instance keyword (example: ae2)")
-unit_keyword = st.text_input("Enter outer keyword (example: outer -1002)")
+instance_keyword = st.text_input("Enter instance type (example: ae2)")
+unit_keyword = st.text_input("Enter outer value (example: outer -1002)")
 st.markdown("</div>", unsafe_allow_html=True)
 
 if file and instance_keyword and unit_keyword:
