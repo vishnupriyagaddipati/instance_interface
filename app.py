@@ -6,14 +6,16 @@ from io import BytesIO
 
 # Regex Functions
 def get_ae2(text, instance_keyword):
-    pattern = rf"{re.escape(instance_keyword)}\s*([A-Za-z0-9_\-]+)"
+    pattern = rf"{re.escape(instance_keyword)}"
     match = re.search(pattern, str(text), re.IGNORECASE)
-    return match.group(1) if match else None
+    return match.group(0) if match else None
 
 def get_outer(text, unit_keyword):
-    pattern = rf"{re.escape(unit_keyword)}\s*([A-Za-z0-9_\-]+)"
+    escaped = re.escape(unit_keyword)
+    escaped = escaped.replace(r"\ ", r"\s*[-_]*\s*")
+    pattern = rf"{escaped}"
     match = re.search(pattern, str(text), re.IGNORECASE)
-    return match.group(1) if match else None
+    return match.group(0) if match else None
 
 def get_unit(text):
     match = re.search(r'unit\s+(\d+)', str(text), re.IGNORECASE)
@@ -26,6 +28,7 @@ def get_instance(text):
 def routing_instances(text):
     match = re.search(r'routing-instances\s+(\S+)', str(text), re.IGNORECASE)
     return match.group(1) if match else None
+
 
 
 # -----------------------------
@@ -64,7 +67,7 @@ st.title("📘 Excel Processing Tool")
 st.markdown("<div class='card'>", unsafe_allow_html=True)
 file = st.file_uploader("Upload your Excel file", type=["xlsx"])
 instance_keyword = st.text_input("Enter instance keyword (example: ae2)")
-unit_keyword = st.text_input("Enter unit keyword (example: outer -1002)")
+unit_keyword = st.text_input("Enter outer keyword (example: outer -1002)")
 st.markdown("</div>", unsafe_allow_html=True)
 
 if file and instance_keyword and unit_keyword:
@@ -92,10 +95,10 @@ if file and instance_keyword and unit_keyword:
         fin_filtered_df=df[(df["ae2_value"].notnull()) & (df["unit_val"].isin(unit_val_list))]
 
         instance_val_list= fin_filtered_df['instance_val'].to_list()
-        instance_filtered_df=df[(df("routing_instance").isin(instance_val_list))]
+        instance_filtered_df=df[(df["routing_instance"].isin(instance_val_list))]
 
         final_rows=[] 
-        
+
         for unit, group in fin_filtered_df.groupby("unit_val"):
             final_rows.append(group)
             # Add an empty row (same columns, all Nord)
@@ -108,7 +111,6 @@ if file and instance_keyword and unit_keyword:
 
         final_df=pd.concat(final_rows, ignore_index=True)
         final_df.drop(columns=["ae2_value", "outer_value", "unit_val", "instance_val", "routing_instance"], inplace=True)
-
         output = BytesIO()
         final_df.to_excel(output, index=False)
         output.seek(0)
